@@ -79,7 +79,11 @@ int main(){
 	 for(int i=1;i<=V;i++){
 	 	if(i==s) continue;
 	 	cout<<endl;
-	 	cout<<"Vertex : "<<i<<endl<<"Distance - "<<dist[i]<<endl;
+	 	if(dist[i]==INT_MAX) { 
+	 		cout<<"Vertex : "<<i<<endl<<"Vertex Unreachable"<<endl;
+	 		continue;
+		}
+	 	else cout<<"Vertex : "<<i<<endl<<"Distance - "<<dist[i]<<endl;
 	 	int new_d = i;
 	 	vector<int> v;
 		v.clear();
