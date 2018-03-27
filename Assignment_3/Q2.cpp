@@ -1,46 +1,78 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-int main(){
-	int v,e,x,n;
-	cin>>v>>e;
-	vector<vector<int> > G;
-	vector<int> cnt(v,0);
+pair<int,vector<int> > merge_and_Count(vector<int> A,vector<int> B)
+{
+	int p1=0,p2=0,count=0;
+	vector<int> newList;
+	while(p1<A.size() && p2<B.size()){
 
-	for(int i=0;i<v;i++){
-		vector<int> row;
-		for(int j=0;j<e;j++){
-			cin>>x;
-			row.push_back(x);
+		if(B[p2]<A[p1]) {
+			count+=A.size()-p1;
+			newList.push_back(B[p2]);
+			p2++;
 		}
-		G.push_back(row);
-	}
-	
-	for(int i=0;i<v;i++){
-		for(int j=0;j<e;j++){
-			cout<<G[i][j]<<" ";
+		else{
+			newList.push_back(A[p1]);
+			p1++;
 		}
-		cout<<endl;
 	}
+	while(p1<A.size()){
+		newList.push_back(A[p1]);
+		p1++;
+	}
+	while(p2<B.size()){
+		newList.push_back(B[p2]);
+		p2++;		
+	}
+
+	return make_pair(count,newList);
+}
+
+pair<int,vector<int> > sort_and_Count(vector<int> L)
+{
+	if(L.size()<=1) return make_pair(0,L);
+	else
+	{
+		vector<int>::iterator mid = L.begin() + (L.size()/2);
+		vector<int> left(L.begin(),mid);
+		vector<int> right(mid,L.end());
+
+		pair<int,vector<int> > leftRes = sort_and_Count(left);
+		pair<int,vector<int> > rightRes = sort_and_Count(right);
+		pair<int,vector<int> > mergeRes = merge_and_Count(leftRes.second,rightRes.second);
+		
+		return make_pair(leftRes.first+rightRes.first+mergeRes.first,mergeRes.second);
+	}	
+}
+
+int main(){
+	int n,x,n2;
+	cin>>n;
 	
-	cin>>n;		//number of columns to check for independence
+	vector<int> array(n);
+	srand(time(NULL));
+	
+	for (int i=0; i<n; ++i) 
+	{
+		array[i]=i+1;
+	}
+
+	random_shuffle ( array.begin(), array.end());  	 
+	cout<<"Random Array : ";
 	for(int i=0;i<n;i++)
 	{
-		cin>>x;//index of column
-		for(int j=0;j<v;j++)
-		{
-			cnt[j] = cnt[j]+G[j][x];
-		}
+		cout<<array[i]<<" ";		
 	}
-	for(int i=0;i<v;i++){
-		if(cnt[i]!=0) 
-			{
-				cout<<"Independent, hence no directed cycle"<<endl;
-				return 0;
-			}
-	}
-	cout<<"Cycle is present , hence dependent"<<endl;
+	cout<<endl;
 
+	pair<int,vector<int> > value = sort_and_Count(array);
+	cout<<endl<<"Number of Inversions : "<<value.first<<endl<<endl;
+	cout<<"Sorted Array : ";
+	for(int i=0;i<value.second.size();i++){
+		cout<<value.second[i]<<" ";		
+	}
+	cout<<endl<<endl;
 	return 0;
 
 

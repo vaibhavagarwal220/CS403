@@ -1,54 +1,116 @@
 #include <bits/stdc++.h>
+#define Point pair<int,int>
 using namespace std;
 
-bool sort_by_w(const pair< pair<int,int>, int > &a,
-              const pair< pair<int,int> ,int > &b)
+
+bool sortbysec(Point l, Point r)
 {
-    return (a.second > b.second);
+    return (l.second < r.second);
 }
 
-int find_set(int u,vector<int> parent){
-	if(u==parent[u])
-		return u;
-	else return find_set(parent[u],parent);
-
-}
- 
-void union_set(int u,int v,vector<int> &parent){
-	parent[u]=parent[v];
+float dist(Point a , Point b){
+	return (float) sqrt( (a.first-b.first)*(a.first-b.first) + (a.second-b.second)*(a.second-b.second) ) ;
 }
 
-void kruskal(vector<pair< pair<int,int> ,int > > edges,vector<int> &parent){
+void printSolution(pair<Point,Point> sol)
+{
+	cout<<endl<<"Closest Pair is { ("<<sol.first.first<<", "<<sol.first.second<<"), (";
+	cout<<sol.second.first<<", "<<sol.second.second<<") } , Closest Distance : "<<dist(sol.first,sol.second)<<endl<<endl;
+}
 
-	int m = edges.size();
-	int n = parent.size(),x,y;
 
-	for(int i=0;i<m;i++){
-		x = find_set(edges[i].first.first, parent);
-		y = find_set(edges[i].first.second, parent);
-		if(x!=y){
-			union_set(x,y,parent);
-			cout<<edges[i].first.first<<"-------"<<edges[i].first.second<<" : "<<edges[i].second<<endl;
+pair<Point,Point > bruteForce(vector<Point > a){
+	float minDist = FLT_MAX;
+	pair<Point,Point > sol;
+	if(a.size()==1) return make_pair(a[0],a[0]);
+	for(int i=0;i<a.size();i++){		
+		for(int j=i+1;j<a.size();j++){
+			if(dist(a[i],a[j])<minDist) {
+				sol = make_pair(a[i],a[j]);
+				minDist = dist(a[i],a[j]);
+			}
+		}	
+	}
+
+	return sol;
+}
+
+
+pair<Point,Point> closest_Pair_Rec(vector<Point > points){
+	if(points.size()<=3) return bruteForce(points);
+
+	pair<Point,Point> sol;
+	vector<Point>::iterator mid = points.begin() + (points.size()/2);
+	vector<Point> left(points.begin(),mid);
+	vector<Point> right(mid,points.end());
+	pair<Point,Point> solLeft = closest_Pair_Rec(left);
+	pair<Point,Point> solRight = closest_Pair_Rec(right);
+	//printSolution(solLeft);
+	//printSolution(solRight);
+
+	float min_d = min(dist(solLeft.first,solLeft.second),dist(solRight.first,solRight.second));
+	Point mid_point = *mid;
+
+	vector<Point> strip;
+
+	float min_dst = min_d;
+	for(int i=0;i<points.size();i++){
+		if(dist(points[i],mid_point) < min_d) 
+			strip.push_back(points[i]);
+	}
+	
+	sort(strip.begin(),strip.end(),sortbysec);
+
+	for(int i=0;i<strip.size();i++)
+	{
+		for(int j=i+1;j<strip.size() && strip[j].second-strip[i].second < min_dst;j++)
+		{
+			if(dist(strip[j],strip[i])<min_dst){
+				min_dst = dist(strip[j],strip[i]);
+				sol = make_pair(strip[i],strip[j]);
+
+			}
 		}
+	}
+	if(min_d == min_dst) {
+		if(dist(solLeft.first,solLeft.second)<dist(solRight.first,solRight.second)){
+			return solLeft;
+		}
+		else{
+			return solRight;
+		}
+	}
+	else{
+		return sol;
 	}
 
 }
+
+pair<Point,Point> closest_Pair(vector<Point > points){
+
+	sort(points.begin(),points.end());
+	pair<Point,Point> sol = closest_Pair_Rec(points);
+	return sol;
+}
+
 
 int main(){
 
-	int n,u,v,w,m;
-	cin>>n>>m;
-	vector<pair< pair<int,int> ,int > > edges;
-	vector<int> parent(n+1);
-	for(int i=0;i<m;i++){
-		cin>>u>>v>>w;
-		edges.push_back(make_pair(make_pair(u,v),w));
+	int n,x,y;
+	cin>>n;
+	vector<Point > points;
+	for(int i=0;i<n;i++)
+	{
+		cin>>x>>y;
+		points.push_back(make_pair(x,y));
 	}
-	sort(edges.begin(),edges.end(),sort_by_w);
-	for(int i=1;i<=n;i++){
-		parent[i]=i;
-	}
-	cout<<"Maximum Acyclic subset for normal edge weight"<<endl;
-	kruskal(edges,parent);
+
+	pair<Point,Point> sol; 
+
+	sol = closest_Pair(points);
+
+	printSolution(sol);
+	
+
 	return 0;
 }
