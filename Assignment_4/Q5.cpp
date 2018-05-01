@@ -85,10 +85,10 @@ vector<vector<int> > strassen(vector<vector<int> > A,vector<vector<int> > B , in
 			A12[i][j] = A[i][j+new_size];
 			A21[i][j] = A[i+new_size][j];
 			A22[i][j] = A[i+new_size][j+new_size];
-			B11[i][j] = A[i][j];
-			B12[i][j] = A[i][j+new_size];
-			B21[i][j] = A[i+new_size][j];
-			B22[i][j] = A[i+new_size][j+new_size];
+			B11[i][j] = B[i][j];
+			B12[i][j] = B[i][j+new_size];
+			B21[i][j] = B[i+new_size][j];
+			B22[i][j] = B[i+new_size][j+new_size];
 		}
 	}
 
